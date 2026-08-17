@@ -95,6 +95,10 @@
   .bil .biltlaw{font-weight:700;font-size:12px;color:#333;margin-top:3px}
   /* print page frame (repeats every page) */
   .print-frame{display:none}
+  .pgt{width:100%;border-collapse:collapse}
+  .pgt td{padding:0;border:none}
+  .pgt .pghd{display:none}
+  .print-logo{height:0.85cm;width:auto}
   @media(max-width:680px){.grid,.grid.three{grid-template-columns:1fr}.contract{padding:24px 18px}.wrap{padding:14px 10px 50px}}
   @media print{
     body{background:#fff;color:#000}
@@ -102,8 +106,10 @@
     #output{margin:0!important}
     #output .out-actions{display:none!important}
     .print-frame{display:none!important}
-    .contract{border:3px double #155244!important;border-radius:0!important;box-shadow:none!important;
-      margin:0!important;padding:0.6cm 0.85cm!important;
+    .pgt .pghd{display:table-cell!important;text-align:left;padding:0 0 0.2cm 0!important;height:1.05cm}
+    .print-logo{height:0.95cm!important;width:auto!important;max-width:none!important;display:block;margin-left:0!important;margin-right:auto!important}
+    .contract{border:none!important;border-radius:0!important;box-shadow:none!important;
+      margin:0!important;padding:0!important;position:relative;z-index:1;
       font-size:10.5pt!important;line-height:1.4!important;
       font-family:Arial,"Segoe UI","Tahoma",sans-serif!important}
     .contract.tcontract{border:none!important;padding:0!important}
@@ -115,12 +121,12 @@
     .contract .bil{font-size:11pt!important;margin-top:8px!important;line-height:1.5!important}
     .contract .bil td{padding:6pt 8pt!important;border:1.2px solid #000!important;line-height:1.5!important}
     .contract .bil tr{break-inside:avoid;page-break-inside:avoid}
-    .doc-logo{height:34px!important;margin:0 auto 2px!important}
+    .doc-logo{display:none!important}
     .doc-head{padding-bottom:4px;margin-bottom:5px;border-bottom:2.5px double #155244!important;break-after:avoid}
     .contract h3{font-size:17pt!important;font-weight:bold}
     .contract .sub{font-size:10.5pt!important}
     .doc-foot{margin-top:8px;font-size:9pt!important;color:#333!important}
-    @page{margin:0.8cm;size:A4 portrait}
+    @page{margin:1.1cm 1.2cm 1cm;size:A4 portrait}
   }
 </style></head>
 <body>
@@ -446,10 +452,8 @@ function generate(){
     </tr></table>`);
   c.push(`<p style="font-size:.92em;margin-top:8px">تم الاطلاع على أصل (جواز سفر / رقم قومي) وكافة المستندات الأخرى، ومرفق صور هذه المستندات.</p>`);
   c.push(`<div class="doc-foot">عقد إيجار وحدة سكنية مفروشة — أصول ريزيدنس</div>`);
-  const html=`<div class="contract" id="contractBody">${c.join('')}</div>`;
-  $('output').innerHTML=`<div class="out-actions actions">
-      <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
-    </div>${html}`;
+  const html=`<div class="contract" id="contractBody"><table class="pgt"><thead><tr><td class="pghd"><img class="print-logo" src="${LOGO}" alt="أصول ريزيدنس"></td></tr></thead><tbody><tr><td>${c.join('')}</td></tr></tbody></table></div>`;
+  $('output').innerHTML=html;
   window.scrollTo({top:document.getElementById('output').offsetTop-10,behavior:'smooth'});
 }
 
