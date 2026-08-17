@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء عقد مستأجر — أصول ريزيدنس</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1f2933; --muted:#6b7280;
+    --line:#e2e5ea; --brand:#1f6f5c; --brand-d:#155244; --accent:#0e7490;
+    --danger:#b42318; --warn:#92400e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Tahoma",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+  header.app{display:flex;align-items:center;gap:12px;padding:18px 22px;background:linear-gradient(135deg,var(--brand),var(--brand-d));color:#fff;border-radius:14px;margin-bottom:20px}
+  header.app h1{font-size:20px;margin:0}
+  header.app p{margin:2px 0 0;font-size:13px;opacity:.9}
+  .logo{height:40px;width:auto;border-radius:8px;background:#ffffff;padding:4px 8px;object-fit:contain}
+  section.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 2px #0000000a}
+  section.card h2{font-size:15px;margin:0 0 14px;color:var(--brand-d);display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--line);padding-bottom:8px}
+  section.card h2 .n{background:var(--brand);color:#fff;width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field.full{grid-column:1/-1}
+  label{font-size:12.5px;color:var(--muted);font-weight:600}
+  label .hint{color:#9aa3af;font-weight:400}
+  input,select,textarea{font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fcfcfd;color:var(--ink);width:100%}
+  input:focus,select,textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  textarea{resize:vertical;min-height:46px}
+  .row-inline{display:flex;align-items:center;gap:10px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);background:#fafbfc;border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer}
+  .chk input{width:auto;margin:0}
+  .switch{position:relative;display:inline-block;width:46px;height:26px;flex:0 0 auto}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:#cbd2da;border-radius:26px;transition:.2s;cursor:pointer}
+  .slider:before{content:"";position:absolute;height:20px;width:20px;right:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked+.slider{background:var(--brand)}
+  .switch input:checked+.slider:before{transform:translateX(-20px)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+  button{font-family:inherit;font-size:14px;font-weight:600;padding:11px 18px;border:none;border-radius:10px;cursor:pointer;transition:.15s}
+  button:active{transform:translateY(1px)}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-d)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#f0f2f5}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-accent:hover{filter:brightness(.92)}
+  .btn-save{background:#fff;color:var(--brand-d);border:1px solid var(--brand)}
+  .btn-save:hover{background:#eef6f3}
+  .saved-list{display:flex;flex-direction:column;gap:8px}
+  .saved-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fafbfc}
+  .saved-item .meta{font-size:13px}
+  .saved-item .meta small{color:var(--muted);display:block;font-size:11.5px}
+  .saved-item .ops{display:flex;gap:6px}
+  .saved-item button{padding:6px 10px;font-size:12.5px}
+  .mini-danger{background:#fff;color:var(--danger);border:1px solid #f1c7c2}
+  .empty{color:var(--muted);font-size:13px;padding:6px 2px}
+  .note{font-size:12.5px;color:var(--warn);background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:10px}
+  /* ===== Contract output ===== */
+  #output{margin-top:18px}
+  .contract{position:relative;background:#fff;color:#111;
+    border:2px solid var(--brand-d);border-radius:2px;
+    box-shadow:0 10px 30px #0000001f, inset 0 0 0 1px #fff, inset 0 0 0 5px #ffffff, inset 0 0 0 6px #cfe0d9;
+    padding:50px 52px;
+    font-family:"Tahoma","Segoe UI",Arial,sans-serif;font-size:14.5px;line-height:1.85}
+  .contract.tcontract{border:none;box-shadow:0 6px 20px #00000016;padding:16px;border-radius:8px}
+  .doc-logo{display:block;margin:0 auto 5px;height:46px;width:auto}
+  .doc-head{text-align:center;padding-bottom:12px;margin-bottom:10px;border-bottom:2px solid var(--brand-d)}
+  .contract h3{text-align:center;margin:0;font-size:20px;letter-spacing:1px;color:var(--brand-d)}
+  .contract .sub{text-align:center;font-weight:700;margin:2px 0;font-size:14px;color:#333}
+  .contract .clause-h{font-weight:700;margin:13px 0 2px;font-size:14.5px;color:var(--brand-d);text-align:center}
+  .contract p{margin:6px 0;text-align:justify}
+  .contract .party{margin:4px 0}
+  .ptbl{width:100%;border-collapse:collapse;margin:4px 0}
+  .ptbl td{padding:0;vertical-align:bottom}
+  .ptbl .ptxt{text-align:right}
+  .ptbl .ptag2{text-align:left;font-weight:700;white-space:nowrap;padding-right:12px}
+  .doc-foot{margin-top:14px;padding-top:8px;border-top:1px solid #d7e2dc;text-align:center;font-size:11px;color:#8a9a93;letter-spacing:.5px}
+  .sig{width:100%;border-collapse:collapse;margin-top:30px}
+  .sig .col{width:50%;vertical-align:top;padding:0 14px}
+  .sig .col h4{text-align:center;margin:0 0 10px;color:var(--brand-d)}
+  .sig .col div{margin:8px 0}
+  .placeholder-msg{color:var(--muted);text-align:center;padding:30px;font-size:14px}
+  /* bilingual tenant contract */
+  .bilhead{text-align:center;margin-bottom:12px}
+  .bilhead .bt{font-weight:700;font-size:17px;color:var(--brand-d)}
+  .bilhead .bts{font-weight:700;font-size:12.5px;color:#333;margin-top:2px}
+  .bil{width:100%;border-collapse:collapse;font-size:14px}
+  .bil td{border:1px solid #5a6b64;padding:11px 13px;vertical-align:top;line-height:1.8}
+  .bil td.ar{text-align:right;width:50%}
+  .bil td.en{text-align:left;width:50%}
+  .bil .biltitle{text-align:center;font-weight:700;font-size:16px;color:var(--brand-d);border:1px solid #5a6b64}
+  .bil .biltlaw{font-weight:700;font-size:12px;color:#333;margin-top:3px}
+  /* print page frame (repeats every page) */
+  .print-frame{display:none}
+  @media(max-width:680px){.grid,.grid.three{grid-template-columns:1fr}.contract{padding:24px 18px}.wrap{padding:14px 10px 50px}}
+  @media print{
+    body{background:#fff;color:#000}
+    .wrap>*:not(#output){display:none!important}
+    #output{margin:0!important}
+    #output .out-actions{display:none!important}
+    .print-frame{display:none!important}
+    .contract{border:3px double #155244!important;border-radius:0!important;box-shadow:none!important;
+      margin:0!important;padding:0.6cm 0.85cm!important;
+      font-size:10.5pt!important;line-height:1.4!important;
+      font-family:Arial,"Segoe UI","Tahoma",sans-serif!important}
+    .contract.tcontract{border:none!important;padding:0!important}
+    .contract .clause-h{break-after:avoid;page-break-after:avoid;font-size:11pt!important;font-weight:bold;text-decoration:underline;margin:5px 0 1px!important}
+    .contract p{break-inside:avoid;page-break-inside:avoid;text-align:justify!important;margin:2px 0!important}
+    .contract .party{font-weight:normal;margin:2px 0!important}
+    .contract .sig{break-inside:avoid;page-break-inside:avoid;margin-top:14px!important}
+    .contract .sig h4{font-size:12pt!important;text-decoration:underline}
+    .contract .bil{font-size:11pt!important;margin-top:8px!important;line-height:1.5!important}
+    .contract .bil td{padding:6pt 8pt!important;border:1.2px solid #000!important;line-height:1.5!important}
+    .contract .bil tr{break-inside:avoid;page-break-inside:avoid}
+    .doc-logo{height:34px!important;margin:0 auto 2px!important}
+    .doc-head{padding-bottom:4px;margin-bottom:5px;border-bottom:2.5px double #155244!important;break-after:avoid}
+    .contract h3{font-size:17pt!important;font-weight:bold}
+    .contract .sub{font-size:10.5pt!important}
+    .doc-foot{margin-top:8px;font-size:9pt!important;color:#333!important}
+    @page{margin:0.8cm;size:A4 portrait}
+  }
+</style></head>
+<body>
+<div class="print-frame" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="app">
+    <img class="logo" id="appLogo" alt="أصول ريزيدنس">
+    <div>
+      <h1>إنشاء عقد مستأجر</h1>
+      <p>املأ بيانات المستأجر والوحدة، واضغط «إنشاء العقد» — طباعة / PDF / حفظ العقد</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2 onclick="toggleSaved()">
+      <span class="n">★</span> العقود المحفوظة <span id="savedCount">0</span>
+      <span id="savedArrow">▼ اعرض</span>
+    </h2>
+    <div id="savedList" class="saved-list" style="display:none"><div class="empty">لا توجد عقود محفوظة بعد.</div></div>
+  </section>
+
+  <div id="tenantArForm">
+    <section class="card">
+      <h2><span class="n">1</span> بيانات العقد</h2>
+      <div class="grid">
+        <div class="field"><label>تاريخ تحرير العقد</label><input type="date" id="taDate"></div>
+        <div class="field"><label>يوم التحرير</label><input id="taWeekday" placeholder="يظهر تلقائيًا"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">2</span> المستأجر (الطرف الثاني)</h2>
+      <div class="grid">
+        <div class="field"><label>الاسم</label><input id="taName" placeholder="اسم المستأجر"></div>
+        <div class="field"><label>الجنسية</label><input id="taNat" placeholder="الجنسية"></div>
+        <div class="field"><label>رقم قومي / جواز سفر</label><input id="taId" placeholder="الرقم القومي أو الجواز"></div>
+        <div class="field"><label>رقم الهاتف</label><input id="taPhone" placeholder="رقم الهاتف"></div>
+        <div class="field"><label>رقم الإقامة في مصر</label><input id="taResidence" placeholder="إن وجد"></div>
+        <div class="field"><label>البريد الإلكتروني</label><input id="taEmail" placeholder="email"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">3</span> الوحدة المؤجرة</h2>
+      <div class="grid three">
+        <div class="field"><label>الكمبوند</label>
+          <select id="taCompoundSel" onchange="compUI()">
+            <option value="فيليدج">فيليدج</option>
+            <option value="ميفيدا">ميفيدا</option>
+            <option value="بورتو">بورتو</option>
+            <option value="__other">أخرى (اكتبها)</option>
+          </select>
+          <input id="taCompound" style="display:none;margin-top:6px" placeholder="اسم الكمبوند"></div>
+        <div class="field"><label>نوع الوحدة</label><select id="taUnitType" onchange="taUnitUI()"><option value="شقة">شقة سكنية</option><option value="فيلا">فيلا</option></select></div>
+        <div class="field" id="taBldBox"><label>العمارة</label><input id="taBuilding" placeholder="رقم العمارة"></div>
+        <div class="field" id="taParcelBox"><label>البارسل</label><input id="taParcel" placeholder="رقم/اسم البارسل"></div>
+        <div class="field"><label id="taUnitLbl">الشقة</label><input id="taUnit" placeholder="رقم الشقة"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">4</span> القيمة والمدة والتأمين</h2>
+      <input type="hidden" id="taCur" value="egp">
+
+      <div class="grid three">
+        <div class="field rmM"><label>قيمة الإيجار</label><input type="number" id="taRent" placeholder="القيمة بالأرقام"></div>
+        <div class="field rmD" style="display:none"><label>قيمة الإيجار</label><input type="number" id="taDayRate" placeholder="سعر اليوم"></div>
+        <div class="field"><label>نوع الإيجار</label><select id="taRentType" onchange="switchRentMode()"><option value="month">شهري</option><option value="day">يومي (بالليلة)</option></select></div>
+      </div>
+
+      <div class="grid three">
+        <div class="field rmM"><label>المدة (شهور)</label><input type="number" id="taMonths" min="1" placeholder="عدد الشهور"></div>
+        <div class="field rmD" style="display:none"><label>المدة (أيام)</label><input type="number" id="taNights" min="1" placeholder="عدد الأيام"></div>
+        <div class="field"><label>تاريخ البداية / الدخول</label><input type="date" id="taStart"></div>
+        <div class="field"><label>تاريخ النهاية / الخروج</label><input type="date" id="taEnd"></div>
+      </div>
+      <div class="grid rmD" style="display:none">
+        <div class="field"><label>إجمالي مدة الإقامة</label><input id="taTotal" readonly placeholder="يُحسب تلقائيًا"></div>
+      </div>
+
+      <div class="grid">
+        <div class="field"><label>قيمة التأمين</label>
+          <select id="taDepType" onchange="depAuto('taRent','taDepType','taDep')">
+            <option value="manual">قيمة يدوية</option>
+            <option value="1">شهر إيجار</option>
+            <option value="2">شهرين إيجار</option>
+          </select>
+          <input type="number" id="taDep" placeholder="اتركه فاضي لو بدون تأمين">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">5</span> الخدمات على المستأجر</h2>
+      <div class="grid three">
+        <label class="chk"><input type="checkbox" id="taGate"> تصريح البوابة</label>
+        <label class="chk"><input type="checkbox" id="taGarage"> الجراج</label>
+        <label class="chk"><input type="checkbox" id="taWater"> المياه وفروق الصيانة</label>
+        <label class="chk"><input type="checkbox" id="taGarden"> صيانة الحديقة (إن وجدت)</label>
+        <label class="chk"><input type="checkbox" id="taGas"> الغاز</label>
+        <label class="chk"><input type="checkbox" id="taNet"> الإنترنت</label>
+        <label class="chk"><input type="checkbox" id="taElec"> الكهرباء</label>
+      </div>
+      <div class="grid three">
+        <div class="field"><label>الرقم الأرضي (للإنترنت)</label><input id="taLandline" placeholder="الرقم الأرضي"></div>
+        <div class="field"><label>قراءة عداد الكهرباء (ك.و.ي)</label><input id="taKwh" placeholder="القراءة"></div>
+        <div class="field"><label>قيمة العداد (جنيه)</label><input id="taEgp" placeholder="بالجنيه"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="generate()">📄 إنشاء العقد</button>
+    <button class="btn-save" onclick="saveDeal()">★ حفظ العقد</button>
+    <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
+    <button class="btn-ghost" onclick="resetForm()">↺ إفراغ الحقول</button>
+  </div>
+  <div class="note" id="storageNote"></div>
+
+  <div id="output">
+    <div class="contract"><div class="placeholder-msg">العقد هيظهر هنا بعد ما تضغط «إنشاء العقد».</div></div>
+  </div>
+</div>
+<script>/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const LOGO='data:image/png;base64,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';
+if(document.getElementById('appLogo')) document.getElementById('appLogo').src=LOGO;
+const WD = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function fmtDate(v){ if(!v) return '..../..../....'; const [y,m,d]=v.split('-'); return `${+d}&nbsp;/&nbsp;${+m}&nbsp;/&nbsp;${y}`; }
+function ymd(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function weekdayOf(v){ if(!v) return ''; const dt=new Date(v+'T00:00:00'); return WD[dt.getDay()]; }
+
+/* ---------- Arabic number to words (tafqit) ---------- */
+const ONES=['','واحد','اثنان','ثلاثة','اربعة','خمسة','ستة','سبعة','ثمانية','تسعة','عشرة','احد عشر','اثنا عشر','ثلاثة عشر','اربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+const TENS=['','','عشرون','ثلاثون','اربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+const HUND=['','مائة','مئتان','ثلاثمائة','اربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+function under1000(n){
+  let parts=[];
+  const h=Math.floor(n/100), r=n%100;
+  if(h) parts.push(HUND[h]);
+  if(r){
+    if(r<20) parts.push(ONES[r]);
+    else{ const t=Math.floor(r/10), o=r%10; if(o) parts.push(ONES[o]+' و'+TENS[t]); else parts.push(TENS[t]); }
+  }
+  return parts.join(' و');
+}
+function scaleWord(n,one,two,few,many){ if(n===1)return one; if(n===2)return two; if(n>=3&&n<=10)return under1000(n)+' '+few; return under1000(n)+' '+many; }
+function tafqit(num){
+  num=Math.floor(Math.abs(+num||0));
+  if(num===0) return 'صفر';
+  let out=[];
+  const mil=Math.floor(num/1000000); const th=Math.floor((num%1000000)/1000); const rest=num%1000;
+  if(mil) out.push(scaleWord(mil,'مليون','مليونان','ملايين','مليون'));
+  if(th) out.push(scaleWord(th,'ألف','ألفان','آلاف','ألف'));
+  if(rest) out.push(under1000(rest));
+  return out.join(' و');
+}
+function ordinal(n){
+  const O=['','الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر'];
+  const U=['','الحادي','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع'];
+  if(n<=10) return O[n];
+  if(n<20) return U[n-10]+' عشر';
+  if(n===20) return 'العشرون';
+  if(n<30) return U[n-20]+' والعشرون';
+  return 'رقم '+n;
+}
+
+/* ---------- Auto-fill reactions ---------- */
+function depAuto(rentId,typeId,depId){
+  const sel=$(typeId), depEl=$(depId); if(!sel||!depEl) return;
+  if(sel.value==='manual'){ depEl.readOnly=false; }
+  else { 
+    const r=+($(rentId)?$(rentId).value:0)||0; 
+    const v=r?r*(+sel.value):''; 
+    depEl.value=(v===''?'':String(v)); 
+    depEl.readOnly=true; 
+  }
+}
+if($('taRent')) $('taRent').addEventListener('input',()=>{ if($('taDepType')&&$('taDepType').value!=='manual') depAuto('taRent','taDepType','taDep'); });
+
+function _uiVilla(typeId,bldBoxId,parcelBoxId,unitLblId,unitInputId){
+  const villa=($(typeId)&&$(typeId).value)==='فيلا';
+  if($(bldBoxId)) $(bldBoxId).style.display=villa?'none':'';
+  if($(parcelBoxId)) $(parcelBoxId).style.display='';
+  if($(unitLblId)) $(unitLblId).textContent=villa?'رقم الفيلا':'رقم الشقة';
+  if($(unitInputId)) $(unitInputId).placeholder=villa?'رقم الفيلا':'رقم الشقة';
+}
+function taUnitUI(){ _uiVilla('taUnitType','taBldBox','taParcelBox','taUnitLbl','taUnit'); }
+function compUI(){
+  const sel=$('taCompoundSel'), inp=$('taCompound'); if(!sel||!inp) return;
+  if(sel.value==='__other'){ inp.style.display=''; if(['فيليدج','ميفيدا','بورتو'].indexOf(inp.value)>-1) inp.value=''; }
+  else { inp.style.display='none'; inp.value=sel.value; }
+}
+
+function locAr(villa,comp,bld,parcel,un,label,sep){
+  sep=sep||' ';
+  const p=[`كمبوند (${comp})`];
+  if(parcel&&parcel!=='..............') p.push(`بارسل (${parcel})`);
+  if(!villa) p.push(`عمارة (${bld})`);
+  p.push(`${label} (${un})`);
+  return p.join(sep);
+}
+
+function switchRentMode(){
+  if(!$('taRentType')) return;
+  const dy=$('taRentType').value==='day';
+  document.querySelectorAll('.rmM').forEach(el=>el.style.display=dy?'none':'');
+  document.querySelectorAll('.rmD').forEach(el=>el.style.display=dy?'':'none');
+  ['taGate','taGarage','taWater','taGarden','taGas','taNet','taElec'].forEach(id=>{ if($(id)) $(id).checked=!dy; });
+  taRecalc();
+}
+function taDaysBetween(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function dayWord(n){ n=+n||0; if(n===1)return 'يوم واحد'; if(n===2)return 'يومان'; if(n>=3&&n<=10)return n+' أيام'; return n+' يومًا'; }
+function monthWord(n){ n=+n||0; if(n===12)return 'سنة واحدة'; if(n===1)return 'شهر واحد'; if(n===2)return 'شهران'; if(n>=3&&n<=10)return n+' أشهر'; return n+' شهرًا'; }
+
+function taRecalc(){
+  if(!$('taRentType')) return;
+  const s=$('taStart').value, type=$('taRentType').value;
+  if(type==='day'){
+    const n=+$('taNights').value||0;
+    if(s&&n){ const dt=new Date(s+'T00:00:00'); dt.setDate(dt.getDate()+n); $('taEnd').value=ymd(dt); }
+    const rate=+$('taDayRate').value||0, total=n*rate;
+    if($('taTotal')) $('taTotal').value = total? total.toLocaleString('en-US')+' جنيهًا ('+dayWord(n)+')' : '';
+  } else {
+    const m=+($('taMonths')?$('taMonths').value:0)||0;
+    if(s&&m){ const dt=new Date(s+'T00:00:00'); dt.setMonth(dt.getMonth()+m); dt.setDate(dt.getDate()-1); $('taEnd').value=ymd(dt); }
+  }
+}
+
+if($('taDate')) $('taDate').addEventListener('change',e=>{ $('taWeekday').value=weekdayOf(e.target.value)||$('taWeekday').value; });
+if($('taStart')) $('taStart').addEventListener('change',taRecalc);
+if($('taMonths')) $('taMonths').addEventListener('input',taRecalc);
+if($('taNights')) $('taNights').addEventListener('input',taRecalc);
+if($('taDayRate')) $('taDayRate').addEventListener('input',taRecalc);
+if($('taEnd')) $('taEnd').addEventListener('change',()=>{ if($('taRentType')&&$('taRentType').value==='day'){ const s=$('taStart').value,en=$('taEnd').value; if(s&&en){ const n=taDaysBetween(s,en); if(n>0)$('taNights').value=n; } } taRecalc(); });
+switchRentMode();
+compUI();
+
+/* ---------- Collect & Apply Data ---------- */
+function collectTenantAr(){
+  const ids=['taDate','taWeekday','taName','taNat','taId','taPhone','taResidence','taEmail','taCompound','taCompoundSel','taUnitType','taBuilding','taParcel','taUnit','taRentType','taMonths','taStart','taEnd','taNights','taDayRate','taRent','taCur','taDep','taDepType','taLandline','taKwh','taEgp'];
+  const cks=['taGate','taGarage','taWater','taGarden','taGas','taNet','taElec'];
+  const d={}; ids.forEach(k=>d[k]=$(k)?$(k).value:''); cks.forEach(k=>d[k]=$(k)?$(k).checked:false); return d;
+}
+function applyTenantAr(d){ 
+  for(const k in d){ const el=$(k); if(!el) continue; if(el.type==='checkbox') el.checked=!!d[k]; else el.value=d[k]??''; } 
+  switchRentMode(); 
+  if($('taDepType')) depAuto('taRent','taDepType','taDep'); 
+  taUnitUI(); compUI(); 
+}
+
+/* ---------- Generate Contract ---------- */
+function generate(){
+  const cw = 'جنيهًا مصريًا';
+  const g=id=>($(id)?$(id).value:'');
+  const ck=id=>($(id)?$(id).checked:false);
+  const dot='..............';
+  const Bv=v=>v&&String(v).trim()?v:dot;
+  const wd=g('taWeekday'), dstr=g('taDate')?fmtDate(g('taDate')):dot;
+  const start=g('taStart')?fmtDate(g('taStart')):dot, end=g('taEnd')?fmtDate(g('taEnd')):dot;
+  const comp=Bv(g('taCompound')), bldg=Bv(g('taBuilding')), unit=Bv(g('taUnit'));
+  const taVilla=(g('taUnitType')||'شقة')==='فيلا';
+  const taLoc=locAr(taVilla,comp,bldg,Bv(g('taParcel')),unit,taVilla?'فيلا':'شقة');
+  const name=Bv(g('taName')), nat=Bv(g('taNat')), pid=Bv(g('taId')), phone=Bv(g('taPhone')), res=Bv(g('taResidence')), email=Bv(g('taEmail'));
+  const isDay=g('taRentType')==='day';
+  
+  // duration / value
+  let daysN=+g('taNights')||0;
+  if(isDay && !daysN && g('taStart') && g('taEnd')) daysN=Math.round((new Date(g('taEnd')+'T00:00:00')-new Date(g('taStart')+'T00:00:00'))/86400000);
+  const dayRate=+g('taDayRate')||0, total=daysN*dayRate, monthRate=+g('taRent')||0, months=+g('taMonths')||0;
+  const durTxt = isDay ? (daysN?dayWord(daysN):dot) : (months?monthWord(months):dot);
+  let amtPart;
+  if(isDay){ const tot=total?total.toLocaleString('en-US'):dot, totW=total?tafqit(total):dot; amtPart=`مبلغ إجمالي قدره ${tot} (فقط ${totW} ${cw} لا غير) عن كامل مدة الإقامة`; }
+  else { const mr=monthRate?monthRate.toLocaleString('en-US'):dot, mrW=monthRate?tafqit(monthRate):dot; amtPart=`أجرة (شهرية) مبلغ قدره ${mr} (فقط ${mrW} ${cw} لا غير)`; }
+  
+  // deposit
+  const depN=g('taDep');
+  let depBody;
+  if(depN){ const dep=(+depN).toLocaleString('en-US'), depW=tafqit(depN); depBody=`دفع الطرف الثاني للطرف الأول بمجلس هذا العقد مبلغ ${dep} (فقط ${depW} ${cw} لا غير) كتأمين، على أن يُرد في نهاية مدة هذا العقد إذا ما قام الطرف الثاني بالوفاء بالتزاماته كاملةً مع عدم الإخلال بأي بند من بنود هذا العقد، وإلا كان للطرف الأول الحق في حجز مبلغ التأمين لاقتضاء مقابل التلفيات أو الأضرار أو الالتزامات غير المسددة من الطرف الثاني.`; }
+  else { depBody=`اتفق الطرفان على أن يكون هذا العقد بدون تأمين.`; }
+  
+  // services
+  const svc=[];
+  if(ck('taGate')) svc.push('تصريح البوابة');
+  if(ck('taGarage')) svc.push('الجراج');
+  if(ck('taWater')) svc.push('المياه وفروق الصيانة');
+  if(ck('taGarden')) svc.push('صيانة الحديقة (إن وجدت)');
+  if(ck('taGas')) svc.push('الغاز');
+  if(ck('taNet')) svc.push(`الإنترنت${g('taLandline')?` (الرقم الأرضي: ${g('taLandline')})`:''}`);
+  if(ck('taElec')){ const mr=(g('taKwh')||g('taEgp'))?` (قراءة العداد عند التعاقد: ${Bv(g('taKwh'))} ك.و.ي — ${Bv(g('taEgp'))} جنيهًا)`:''; svc.push(`الكهرباء${mr}`); }
+  
+  const c=[];
+  c.push(`<div class="doc-head"><img class="doc-logo" src="${LOGO}" alt="أصول ريزيدنس"><h3>عقد إيجار وحدة سكنية مفروشة</h3><div class="sub">طبقًا لأحكام القانون المدني — مدينة القاهرة الجديدة</div></div>`);
+  c.push(`<p>أنه في يوم : ${Bv(wd)}   الموافق : ${dstr}   تم تحرير هذا العقد بين كل من :</p>`);
+  c.push(`<p class="party">السادة / <b>شركة أصول ريزيدنس</b> — الكائن مقرها كمبوند فيليدج – التجمع الخامس – القاهرة الجديدة – القاهرة.</p>`);
+  c.push(`<table class="ptbl"><tr><td class="ptxt"></td><td class="ptag2">(طرف أول مؤجر)</td></tr></table>`);
+  c.push(`<p class="party">السيد / <b>${name}</b>   الجنسية : ${nat}</p>`);
+  c.push(`<p class="party">رقم قومي / جواز سفر : ${pid}   رقم الهاتف : ${phone}</p>`);
+  c.push(`<table class="ptbl"><tr><td class="ptxt">رقم الإقامة في مصر : ${res}   البريد الإلكتروني : ${email}</td><td class="ptag2">(طرف ثاني مستأجر)</td></tr></table>`);
+  c.push(`<div class="clause-h">تمهيد</div><p>تؤجر شركة أصول ريزيدنس للطرف الثاني ${taVilla?'فيلا سكنية مفروشة':'وحدة سكنية مفروشة'} بـ ${taLoc}، ومرفق بهذا العقد ملحق بقائمة المنقولات الخاصة بالوحدة السكنية موضوع العقد.</p>`);
+
+  const bodies=[];
+  bodies.push(`التمهيد جزء لا يتجزأ من هذا العقد. ومدة هذا العقد ${durTxt} تبدأ في ${start} وتنتهي في ${end} في تمام الساعة (12 ظهرًا)، ويترتب على انقضاء هذه المدة انتهاء العقد بحكم القانون دون حاجة لتنبيه أو إنذار بالإخلاء.<br>ويتعهد ويلتزم الطرف الثاني (المستأجر) في حالة رغبته ترك الوحدة السكنية المفروشة لظروف خاصة به أيًا كانت — ظروفًا قاهرة أو عادية — قبل انتهاء مدة هذا العقد بالشروط التالية:<br>1- تنازله عن استرداد مبلغ القيمة الإيجارية وأي مبالغ مالية مدفوعة مقدمًا عن مدة إقامته الحالية والمستقبلية إن وُجد.<br>2- تنازله عن حقه في استرداد قيمة مبلغ التأمين المذكور في البند الثالث واعتباره تعويضًا عن الإنهاء المبكر من جانب المستأجر.<br>وتسليم الوحدة السكنية المفروشة بالحالة التي كانت عليها وقت إبرام هذا العقد في الفقرتين السابقتين دون الحاجة إلى إعذار أو حكم قضائي.`);
+  bodies.push(`تم هذا الإيجار لقاء ${amtPart} يلتزم الطرف الثاني بالوفاء بها بموطن الطرف الأول المبين بهذا العقد بإيصال استلام أو من خلال تحويل بنكي، وفي حالة الإخلال بهذا الالتزام يعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر، كما يقر ويسمح الطرف الثاني للطرف الأول بفتح ودخول الوحدة السكنية المفروشة موضوع هذا العقد دون أي إذن أو تنبيه حالة تأخير الطرف الثاني عن سداد القيمة الإيجارية.`);
+  bodies.push(depBody);
+  if(svc.length){ bodies.push(`يلتزم الطرف الثاني بقيمة استهلاك كافة الخدمات الموضحة أدناه اعتبارًا من تاريخ هذا العقد، كما يلتزم بقيمة أي غرامات أو مخالفات تنتج عن سوء استخدام الخدمات بالإضافة إلى تعويض الشركة عن الأضرار. <b>الخدمات على الطرف الثاني:</b> ${svc.join('، ')}.`); }
+  else { bodies.push(`يلتزم الطرف الثاني بقيمة أي غرامات أو مخالفات تنتج عن سوء استخدام الخدمات بالإضافة إلى تعويض الشركة عن الأضرار.`); }
+  bodies.push(`تسلّم الطرف الثاني العين المؤجرة بما فيها من منقولات بتاريخ هذا العقد على سبيل الأمانة لاستعمالها في الغرض الذي خُصصت له، ويلتزم بردها في نهاية المدة المتفق عليها بحالتها المبينة بالبند التمهيدي، وإلا كان الطرف الثاني مسئولًا مدنيًا وجنائيًا حالة فقدان أو إتلاف المنقولات، وفي هذه الحالة يكون للطرف الأول حجز التأمين كتعويض بالإضافة إلى رجوعه على الطرف الثاني بتكملة التعويض لجبر ما ناله من ضرر ما لم يتم التصالح بينهما على تقدير ذلك.`);
+  bodies.push(`يقر الطرف الثاني بأنه عاين العين المؤجرة وما بها من منقولات معاينةً نافيةً للجهالة فوجدها بحالة جيدة وصالحة للاستعمال ولا يحتاج أي شيء منها لأي صيانة، ولا يجوز للطرف الثاني إدخال أي منقولات بالعين المؤجرة أو إخراج أي منقولات منها وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون الحاجة إلى تنبيه أو إنذار أو أي إجراء آخر مع إلزامه برد المنقولات الملحقة بهذا العقد.`);
+  bodies.push(`الغرض من الإيجار هو سكنى الطرف الثاني وأسرته فقط، ولا يجوز تغيير هذا الغرض لأي سبب من الأسباب أو إجراء أي تعديل بالعين وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر.`);
+  bodies.push(`يلتزم الطرف الثاني بكافة التعليمات التي أقرها أو سوف يقررها اتحاد الشاغلين فيما يخص الوحدة السكنية موضوع هذا العقد بشكل خاص، وبالتعليمات الخاصة بالمنطقة السكنية (الكمبوند) بشكل عام، وفي حالة الإخلال بأي من هذه التعليمات يحق للطرف الأول فسخ هذا العقد دون الحاجة إلى إنذار أو تنبيه بالفسخ، كما يتحمل الطرف الثاني مسؤولية الإخلال بهذه التعليمات بما في ذلك الغرامات المقررة من اتحاد الشاغلين، ولا يحق له المطالبة بمبلغ التأمين المدفوع وقت إبرام هذا العقد كجزء من التعويض عما لحق بالشركة (الطرف الأول) من أضرار مادية ومعنوية، بالإضافة إلى مطالبة الطرف الأول باستكمال التعويض من الطرف الثاني.`);
+  bodies.push(`في حالة إخلال الطرف الثاني بتنفيذ التزامه بإخلاء العين في المدة المتفق عليها يلتزم بدفع مبلغ 10,000 جنيه مصري (فقط عشرة آلاف جنيه مصري لا غير) عن كل يوم تأخير إلى أن يتم تنفيذه رضاءً أو قضاءً.`);
+  bodies.push(`لا يجوز للطرف الثاني التنازل عن الإيجار أو التأجير من الباطن وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر، ويكون للطرف الأول الرجوع عليه بالأجرة المستحقة عن باقي مدة العقد.`);
+  bodies.push(`تختص محكمة القاهرة الجديدة بنظر ما قد ينشب عن هذا العقد من منازعات، ويعتبر عنوان كل من طرفيه المبين به موطنًا مختارًا في هذا الصدد، ويلتزم الطرف الأول بإخطار الجهات المعنية عن هذا الإيجار.`);
+  bodies.push(`تم كتابة بيانات الطرف الثاني واستكمال كافة بيانات هذا العقد — عدا التوقيعات — أمام الطرف الثاني وبرضائه بخط يد مندوب تشغيل وتسكين شركة أصول ريزيدنس والمفوض من الشركة بالتوقيع على العقد نيابةً عن الشركة ومختوم باسم المفوض.`);
+  const nClauses=bodies.length+1;
+  bodies.push(`حرر هذا العقد من ${tafqit(nClauses)} بندًا في ورقة واحدة وجهان، لكل طرف نسخة للعمل بموجبها.`);
+  bodies.forEach((b,i)=>{ c.push(`<div class="clause-h">البند ${ordinal(i+1)}</div><p>${b}</p>`); });
+
+  c.push(`<table class="sig"><tr>
+      <td class="col"><h4>الطرف الأول (المؤجر)</h4><div>الاسم : شركة أصول ريزيدنس</div><div>التوقيع : ........................</div><div>ختم مفوّض الشركة</div></td>
+      <td class="col"><h4>الطرف الثاني (المستأجر)</h4><div>الاسم : ${name}</div><div>التوقيع : ........................</div><div>رقم قومي/جواز : ${pid}</div></td>
+    </tr></table>`);
+  c.push(`<p style="font-size:.92em;margin-top:8px">تم الاطلاع على أصل (جواز سفر / رقم قومي) وكافة المستندات الأخرى، ومرفق صور هذه المستندات.</p>`);
+  c.push(`<div class="doc-foot">عقد إيجار وحدة سكنية مفروشة — أصول ريزيدنس</div>`);
+  const html=`<div class="contract" id="contractBody">${c.join('')}</div>`;
+  $('output').innerHTML=`<div class="out-actions actions">
+      <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
+    </div>${html}`;
+  window.scrollTo({top:document.getElementById('output').offsetTop-10,behavior:'smooth'});
+}
+
+/* ---------- Output actions ---------- */
+function printContract(){ window.print(); }
+
+function flash(msg){
+  const n=$('storageNote'); n.style.display='block'; n.style.color='#155244'; n.style.background='#e7f6f0'; n.style.borderColor='#a7e3cf'; n.textContent=msg;
+  clearTimeout(window._ft); window._ft=setTimeout(()=>{n.style.display='none';},2600);
+}
+
+/* ---------- Storage ---------- */
+let MEM=[];
+const Store={
+  async list(){
+    try{ const out=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i); if(k.indexOf('deal_tar:')===0)out.push(JSON.parse(localStorage.getItem(k)));} return out; }catch(e){ return MEM.slice(); }
+  },
+  async save(rec){
+    const key='deal_tar:'+rec.id;
+    try{ localStorage.setItem(key,JSON.stringify(rec)); return; }catch(e){ MEM=MEM.filter(x=>x.id!==rec.id); MEM.push(rec); }
+  },
+  async remove(id){
+    const key='deal_tar:'+id;
+    try{ localStorage.removeItem(key); }catch(e){} MEM=MEM.filter(x=>x.id!==id);
+  }
+};
+
+async function saveDeal(){
+  const d=collectTenantAr();
+  if(!d.taName){ flash('اكتب اسم المستأجر قبل الحفظ'); return; }
+  const rec={ id:String(Date.now()), label:d.taName, sub:`${d.taCompound||''} · ${d.taRent?(+d.taRent).toLocaleString('en-US')+' ج':''}`, savedAt:new Date().toLocaleString('ar-EG'), data:d };
+  await Store.save(rec); flash('تم حفظ العقد ✓'); renderSaved();
+}
+
+function toggleSaved(){
+  const box=$('savedList'), ar=$('savedArrow');
+  const open=box.style.display!=='none';
+  box.style.display=open?'none':'';
+  if(ar) ar.textContent=open?'▼ اعرض':'▲ اقفل';
+}
+
+async function renderSaved(){
+  const list=await Store.list();
+  const box=$('savedList');
+  if($('savedCount')) $('savedCount').textContent=list.length;
+  if(!list.length){ box.innerHTML='<div class="empty">لا توجد عقود محفوظة بعد.</div>'; return; }
+  list.sort((a,b)=>+b.id-+a.id);
+  box.innerHTML=list.map(r=>`<div class="saved-item">
+     <div class="meta"><b>${r.label||'بدون اسم'}</b><small>${r.sub||''} — ${r.savedAt||''}</small></div>
+     <div class="ops">
+       <button class="btn-ghost" onclick="loadDeal('${r.id}')">تحميل</button>
+       <button class="mini-danger" onclick="delDeal('${r.id}')">حذف</button>
+     </div></div>`).join('');
+}
+
+async function loadDeal(id){
+  const list=await Store.list(); const r=list.find(x=>x.id===id); if(!r)return;
+  applyTenantAr(r.data);
+  flash('تم تحميل العقد'); generate();
+}
+async function delDeal(id){ await Store.remove(id); renderSaved(); }
+
+function resetForm(){
+  const clear=ids=>ids.forEach(k=>{ const el=$(k); if(el){ if(el.type==='checkbox') el.checked=false; else el.value=''; } });
+  clear(['taDate','taWeekday','taName','taNat','taId','taPhone','taResidence','taEmail','taCompound','taBuilding','taParcel','taUnit','taStart','taEnd','taMonths','taNights','taDayRate','taTotal','taRent','taDep','taLandline','taKwh','taEgp','taGate','taGarage','taWater','taGarden','taGas','taNet','taElec']);
+  if($('taUnitType'))$('taUnitType').value='شقة'; taUnitUI();
+  if($('taCompoundSel'))$('taCompoundSel').value='فيليدج'; compUI();
+  if($('taDepType')){$('taDepType').value='manual'; depAuto('taRent','taDepType','taDep');}
+  if($('taRentType'))$('taRentType').value='month'; switchRentMode();
+  $('output').innerHTML='<div class="contract"><div class="placeholder-msg">العقد هيظهر هنا بعد ما تضغط «إنشاء العقد».</div></div>';
+  flash('تم إفراغ الحقول');
+}
+
+/* init */
+(async()=>{ 
+  try{ await renderSaved(); }catch(e){}
+  $('storageNote').style.display='none';
+})();
+</script>
+</body>
+</html>
