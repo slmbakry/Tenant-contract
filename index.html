@@ -108,7 +108,7 @@
     <div class="logo">ع</div>
     <div>
       <h1>إنشاء عقد المستأجر</h1>
-      <p>املأ بيانات المستأجر والوحدة، واضغط «إنشاء العقد» — طباعة / PDF / Word / حفظ الصفقة</p>
+      <p>املأ بيانات المستأجر والوحدة، واضغط «إنشاء العقد» — طباعة / PDF / حفظ الصفقة</p>
     </div>
   </header>
 
@@ -216,7 +216,6 @@
     <button class="btn-primary" onclick="generate()">📄 إنشاء العقد</button>
     <button class="btn-save" onclick="saveDeal()">★ حفظ العقد</button>
     <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
-    <button class="btn-accent" onclick="downloadWord()">📄 تحميل Word</button>
     <button class="btn-ghost" onclick="resetForm()">↺ إفراغ الحقول</button>
   </div>
   <div class="note" id="storageNote"></div>
@@ -425,180 +424,12 @@ function generate(){
   const html=`<div class="contract" id="contractBody">${c.join('')}</div>`;
   $('output').innerHTML=`<div class="out-actions actions">
       <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
-      <button class="btn-accent" onclick="downloadWord()">📄 تحميل Word</button>
     </div>${html}`;
   window.scrollTo({top:document.getElementById('output').offsetTop-10,behavior:'smooth'});
 }
 
 /* ---------- Output actions ---------- */
 function printContract(){ window.print(); }
-
-function buildContractDocx(D, body){
-  const {Document,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,VerticalAlign,PageBorderDisplay,PageBorderOffsetFrom}=D;
-  const BRAND="155244", AR_FONT="Arial";
-  const NOB={top:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},bottom:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},left:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},right:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}};
-  const LINE={line:288,lineRule:"auto"};
-
-  function runsOf(el, base){
-    base=base||{}; const out=[]; let brk=0;
-    function push(t,extra){
-      if(!t) return;
-      const o=Object.assign({text:t,rightToLeft:true,font:AR_FONT},base.run||{},extra||{});
-      if(brk>0){o.break=brk;brk=0;}
-      out.push(new TextRun(o));
-    }
-    (el.childNodes||[]).forEach(n=>{
-      if(n.nodeType===3){ push(n.textContent); }
-      else if(n.nodeType===1){
-        const tg=n.tagName;
-        if(tg==='BR'){ brk++; return; }
-        if(tg==='B'||tg==='STRONG'){ push(n.textContent,{bold:true}); }
-        else push(n.textContent);
-      }
-    });
-    if(!out.length) out.push(new TextRun({text:'',rightToLeft:true,font:AR_FONT}));
-    return out;
-  }
-  function paras(el, opts){
-    opts=opts||{};
-    const segs=[[]]; 
-    (el.childNodes||[]).forEach(n=>{
-      if(n.nodeType===3){ if(n.textContent) segs[segs.length-1].push({t:n.textContent}); }
-      else if(n.nodeType===1){
-        if(n.tagName==='BR'){ segs.push([]); return; }
-        const bold=(n.tagName==='B'||n.tagName==='STRONG');
-        if(n.textContent) segs[segs.length-1].push({t:n.textContent,bold});
-      }
-    });
-    const out=[];
-    segs.forEach(seg=>{
-      const txt=seg.map(s=>s.t).join('');
-      if(!txt.trim()) return;
-      const runs=seg.map(s=>new TextRun(Object.assign({text:s.t,rightToLeft:true,font:AR_FONT}, s.bold?{bold:true}:{})));
-      out.push(new Paragraph(Object.assign({
-        children:runs,
-        bidirectional:true,
-        alignment:opts.align||AlignmentType.JUSTIFIED,
-        spacing:Object.assign({},LINE,{after:opts.after!=null?opts.after:40},opts.before!=null?{before:opts.before}:{}),
-      }, opts.border?{border:opts.border}:{})));
-    });
-    if(!out.length) out.push(new Paragraph({children:[new TextRun({text:''})],bidirectional:true}));
-    return out;
-  }
-  function textPara(t, o){
-    o=o||{};
-    return new Paragraph(Object.assign({
-      children:[new TextRun(Object.assign({text:t,rightToLeft:true,font:AR_FONT},o.run||{}))],
-      bidirectional:true, alignment:o.align||AlignmentType.START,
-      spacing:Object.assign({},LINE,{after:o.after!=null?o.after:40},o.before!=null?{before:o.before}:{}),
-    }, o.border?{border:o.border}:{}));
-  }
-
-  const kids=[];
-  Array.prototype.forEach.call(body.children, el=>{
-    const cls=el.className||'', tag=el.tagName;
-    if(tag==='DIV' && cls.indexOf('doc-head')>-1){
-      const ch=Array.prototype.slice.call(el.children);
-      ch.forEach((c,i)=>{
-        const last=i===ch.length-1;
-        const border=last?{bottom:{style:BorderStyle.DOUBLE,size:12,color:BRAND,space:4}}:null;
-        if(c.tagName==='H3') kids.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:34,color:BRAND},after:40,border}));
-        else kids.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:24},after:last?80:20,border}));
-      });
-    }
-    else if(tag==='DIV' && cls.indexOf('clause-h')>-1){
-      kids.push(textPara(el.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:25,color:BRAND,underline:{}},before:110,after:30}));
-    }
-    else if(tag==='DIV' && cls.indexOf('doc-foot')>-1){
-      kids.push(textPara(el.textContent,{align:AlignmentType.CENTER,run:{size:16,color:"999999"},before:120,border:{top:{style:BorderStyle.SINGLE,size:4,color:"CFE0D9",space:3}}}));
-    }
-    else if(tag==='P'){
-      paras(el,{align:cls.indexOf('party')>-1?AlignmentType.START:AlignmentType.JUSTIFIED,after:cls.indexOf('party')>-1?30:40}).forEach(p=>kids.push(p));
-    }
-    else if(tag==='TABLE' && cls.indexOf('ptbl')>-1){
-      const tr=el.rows[0];
-      const cells=[];
-      Array.prototype.forEach.call(tr.cells, td=>{
-        const isTag=(td.className||'').indexOf('ptag2')>-1;
-        cells.push(new TableCell({
-          children:[new Paragraph({children:runsOf(td,isTag?{run:{bold:true}}:{}),bidirectional:true,alignment:isTag?AlignmentType.END:AlignmentType.START,spacing:Object.assign({},LINE,{after:30})})],
-          borders:NOB, width:{size:isTag?24:76,type:WidthType.PERCENTAGE}, verticalAlign:VerticalAlign.BOTTOM,
-        }));
-      });
-      kids.push(new Table({rows:[new TableRow({children:cells})],width:{size:100,type:WidthType.PERCENTAGE},visuallyRightToLeft:true,borders:NOB}));
-    }
-    else if(tag==='TABLE' && cls.indexOf('sig')>-1){
-      const tr=el.rows[0];
-      const cells=[];
-      Array.prototype.forEach.call(tr.cells, td=>{
-        const paras=[];
-        Array.prototype.forEach.call(td.children, c=>{
-          if(c.tagName==='H4') paras.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:26,underline:{}},after:80}));
-          else paras.push(textPara(c.textContent,{align:AlignmentType.START,after:60}));
-        });
-        cells.push(new TableCell({children:paras,borders:NOB,width:{size:50,type:WidthType.PERCENTAGE}}));
-      });
-      kids.push(new Paragraph({children:[],spacing:{before:160,after:0}}));
-      kids.push(new Table({rows:[new TableRow({children:cells})],width:{size:100,type:WidthType.PERCENTAGE},visuallyRightToLeft:true,borders:NOB}));
-    }
-  });
-
-  const pageBorders = {borders:{
-    pageBorders:{display:PageBorderDisplay.ALL_PAGES,offsetFrom:PageBorderOffsetFrom.PAGE},
-    pageBorderTop:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
-    pageBorderBottom:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
-    pageBorderLeft:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
-    pageBorderRight:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
-  }};
-
-  return new Document({
-    styles:{default:{document:{run:{font:AR_FONT,size:24}}}},
-    sections:[{
-      properties:{page:Object.assign({
-        size:{width:11906,height:16838},
-        margin:{top:680,bottom:680,left:740,right:740},
-      },pageBorders)},
-      children:kids,
-    }],
-  });
-}
-
-function loadDocxLib(){
-  if(window.docx&&window.docx.Document) return Promise.resolve();
-  if(window.__docxLoading) return window.__docxLoading;
-  const urls=['https://unpkg.com/docx@8.5.0/build/index.umd.js','https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js'];
-  window.__docxLoading=new Promise((resolve,reject)=>{
-    let i=0;
-    const tryNext=()=>{
-      if(i>=urls.length){window.__docxLoading=null;reject(new Error('offline'));return;}
-      const s=document.createElement('script');
-      s.src=urls[i++];
-      s.onload=()=>{ if(window.docx&&window.docx.Document) resolve(); else tryNext(); };
-      s.onerror=()=>{ s.remove(); tryNext(); };
-      document.head.appendChild(s);
-    };
-    tryNext();
-  });
-  return window.__docxLoading;
-}
-async function downloadWord(){
-  const body=document.getElementById('contractBody');
-  if(!body){flash('اعمل العقد الأول');return;}
-  let D;
-  try{ await loadDocxLib(); D=window.docx; }
-  catch(e){ flash('تنزيل Word محتاج اتصال إنترنت (أول مرة فقط) — اتأكد من الاتصال وحاول تاني'); return; }
-  try{
-    const doc=buildContractDocx(D,body);
-    const blob=await D.Packer.toBlob(doc);
-    const clean=s=>(s||'').replace(/[\\/:*?"<>|]/g,'').trim();
-    const parts=[clean($('taCompound').value),clean($('taBuilding').value),clean($('taUnit').value)].filter(Boolean);
-    const detail=parts.join(' ');
-    const name=detail ? `عقد مستأجر - ${detail}.docx` : `عقد مستأجر.docx`;
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
-    flash('تم إنشاء ملف Word ✓');
-  }catch(err){ console.error(err); flash('حصل خطأ أثناء إنشاء ملف Word'); }
-}
 
 function flash(msg){
   const n=$('storageNote'); n.style.display='block'; n.style.color='#155244'; n.style.background='#e7f6f0'; n.style.borderColor='#a7e3cf'; n.textContent=msg;
