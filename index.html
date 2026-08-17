@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء عقد المستأجر — أصول ريزيدنس</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1f2933; --muted:#6b7280;
+    --line:#e2e5ea; --brand:#1f6f5c; --brand-d:#155244; --accent:#0e7490;
+    --danger:#b42318; --warn:#92400e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Tahoma",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+  header.app{display:flex;align-items:center;gap:12px;padding:18px 22px;background:linear-gradient(135deg,var(--brand),var(--brand-d));color:#fff;border-radius:14px;margin-bottom:20px}
+  header.app h1{font-size:20px;margin:0}
+  header.app p{margin:2px 0 0;font-size:13px;opacity:.9}
+  .logo{width:42px;height:42px;border-radius:10px;background:#ffffff22;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+  section.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 2px #0000000a}
+  section.card h2{font-size:15px;margin:0 0 14px;color:var(--brand-d);display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--line);padding-bottom:8px}
+  section.card h2 .n{background:var(--brand);color:#fff;width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field.full{grid-column:1/-1}
+  label{font-size:12.5px;color:var(--muted);font-weight:600}
+  label .hint{color:#9aa3af;font-weight:400}
+  input,select,textarea{font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fcfcfd;color:var(--ink);width:100%}
+  input:focus,select,textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  textarea{resize:vertical;min-height:46px}
+  .row-inline{display:flex;align-items:center;gap:10px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);background:#fafbfc;border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer}
+  .chk input{width:auto;margin:0}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+  button{font-family:inherit;font-size:14px;font-weight:600;padding:11px 18px;border:none;border-radius:10px;cursor:pointer;transition:.15s}
+  button:active{transform:translateY(1px)}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-d)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#f0f2f5}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-accent:hover{filter:brightness(.92)}
+  .btn-save{background:#fff;color:var(--brand-d);border:1px solid var(--brand)}
+  .btn-save:hover{background:#eef6f3}
+  .saved-list{display:flex;flex-direction:column;gap:8px}
+  .saved-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fafbfc}
+  .saved-item .meta{font-size:13px}
+  .saved-item .meta small{color:var(--muted);display:block;font-size:11.5px}
+  .saved-item .ops{display:flex;gap:6px}
+  .saved-item button{padding:6px 10px;font-size:12.5px}
+  .mini-danger{background:#fff;color:var(--danger);border:1px solid #f1c7c2}
+  .empty{color:var(--muted);font-size:13px;padding:6px 2px}
+  .note{font-size:12.5px;color:var(--warn);background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:10px}
+  /* ===== Contract output ===== */
+  #output{margin-top:18px}
+  .contract{position:relative;background:#fff;color:#111;
+    border:2px solid var(--brand-d);border-radius:2px;
+    box-shadow:0 10px 30px #0000001f, inset 0 0 0 1px #fff, inset 0 0 0 5px #ffffff, inset 0 0 0 6px #cfe0d9;
+    padding:50px 52px;
+    font-family:"Tahoma","Segoe UI",Arial,sans-serif;font-size:14.5px;line-height:1.85}
+  .doc-head{text-align:center;padding-bottom:12px;margin-bottom:10px;border-bottom:2px solid var(--brand-d)}
+  .contract h3{text-align:center;margin:0;font-size:20px;letter-spacing:1px;color:var(--brand-d)}
+  .contract .sub{text-align:center;font-weight:700;margin:2px 0;font-size:14px;color:#333}
+  .contract .clause-h{font-weight:700;margin:13px 0 2px;font-size:14.5px;color:var(--brand-d);text-align:center}
+  .contract p{margin:6px 0;text-align:justify}
+  .contract .party{margin:4px 0}
+  .ptbl{width:100%;border-collapse:collapse;margin:4px 0}
+  .ptbl td{padding:0;vertical-align:bottom}
+  .ptbl .ptxt{text-align:right}
+  .ptbl .ptag2{text-align:left;font-weight:700;white-space:nowrap;padding-right:12px}
+  .doc-foot{margin-top:14px;padding-top:8px;border-top:1px solid #d7e2dc;text-align:center;font-size:11px;color:#8a9a93;letter-spacing:.5px}
+  .sig{width:100%;border-collapse:collapse;margin-top:30px}
+  .sig .col{width:50%;vertical-align:top;padding:0 14px}
+  .sig .col h4{text-align:center;margin:0 0 10px;color:var(--brand-d)}
+  .sig .col div{margin:8px 0}
+  .placeholder-msg{color:var(--muted);text-align:center;padding:30px;font-size:14px}
+  /* print page frame */
+  .print-frame{display:none}
+  @media(max-width:680px){.grid,.grid.three{grid-template-columns:1fr}.contract{padding:24px 18px}.wrap{padding:14px 10px 50px}}
+  @media print{
+    body{background:#fff;color:#000}
+    .wrap>*:not(#output){display:none!important}
+    #output{margin:0!important}
+    #output .out-actions{display:none!important}
+    .print-frame{display:none!important}
+    .contract{border:3px double #155244!important;border-radius:0!important;box-shadow:none!important;
+      margin:0!important;padding:0.6cm 0.85cm!important;
+      font-size:10.5pt!important;line-height:1.4!important;
+      font-family:Arial,"Segoe UI","Tahoma",sans-serif!important}
+    .contract .clause-h{break-after:avoid;page-break-after:avoid;font-size:11pt!important;font-weight:bold;text-decoration:underline;margin:5px 0 1px!important}
+    .contract p{break-inside:avoid;page-break-inside:avoid;text-align:justify!important;margin:2px 0!important}
+    .contract .party{font-weight:normal;margin:2px 0!important}
+    .contract .sig{break-inside:avoid;page-break-inside:avoid;margin-top:14px!important}
+    .contract .sig h4{font-size:12pt!important;text-decoration:underline}
+    .doc-head{padding-bottom:4px;margin-bottom:5px;border-bottom:2.5px double #155244!important;break-after:avoid}
+    .contract h3{font-size:17pt!important;font-weight:bold}
+    .contract .sub{font-size:10.5pt!important}
+    .doc-foot{margin-top:8px;font-size:9pt!important;color:#333!important}
+    @page{margin:0.8cm;size:A4 portrait}
+  }
+</style>
+</head>
+<body>
+<div class="print-frame" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="app">
+    <div class="logo">ع</div>
+    <div>
+      <h1>إنشاء عقد المستأجر</h1>
+      <p>املأ بيانات المستأجر والوحدة، واضغط «إنشاء العقد» — طباعة / PDF / Word / حفظ الصفقة</p>
+    </div>
+  </header>
+
+  <!-- Saved deals -->
+  <section class="card">
+    <h2 onclick="toggleSaved()" style="cursor:pointer;user-select:none;margin-bottom:0;border-bottom:none;padding-bottom:0">
+      <span class="n">★</span> الصفقات المحفوظة <span id="savedCount" style="background:#eef6f3;color:var(--brand-d);border-radius:20px;padding:1px 10px;font-size:12px">0</span>
+      <span id="savedArrow" style="margin-inline-start:auto;font-size:12px;color:var(--muted)">▼ اعرض</span>
+    </h2>
+    <div id="savedList" class="saved-list" style="display:none;margin-top:14px"><div class="empty">لا توجد صفقات محفوظة بعد.</div></div>
+  </section>
+
+  <div id="tenantArForm">
+    <!-- 1. بيانات العقد -->
+    <section class="card">
+      <h2><span class="n">1</span> بيانات العقد</h2>
+      <div class="grid">
+        <div class="field"><label>تاريخ تحرير العقد</label><input type="date" id="taDate"></div>
+        <div class="field"><label>يوم التحرير <span class="hint">(تلقائي)</span></label><input id="taWeekday" placeholder="يظهر تلقائيًا"></div>
+      </div>
+    </section>
+
+    <!-- 2. المستأجر -->
+    <section class="card">
+      <h2><span class="n">2</span> المستأجر (الطرف الثاني)</h2>
+      <div class="grid">
+        <div class="field"><label>الاسم</label><input id="taName" placeholder="اسم المستأجر"></div>
+        <div class="field"><label>الجنسية</label><input id="taNat" placeholder="الجنسية"></div>
+        <div class="field"><label>رقم قومي / جواز سفر</label><input id="taId" placeholder="الرقم القومي أو الجواز"></div>
+        <div class="field"><label>رقم الهاتف</label><input id="taPhone" placeholder="رقم الهاتف"></div>
+        <div class="field"><label>رقم الإقامة في مصر</label><input id="taResidence" placeholder="إن وجد"></div>
+        <div class="field"><label>البريد الإلكتروني</label><input id="taEmail" placeholder="email"></div>
+      </div>
+    </section>
+
+    <!-- 3. الوحدة -->
+    <section class="card">
+      <h2><span class="n">3</span> الوحدة المؤجرة <span class="hint" style="font-weight:400;color:var(--muted)">(مفروشة)</span></h2>
+      <div class="grid three">
+        <div class="field"><label>الكمبوند</label><input id="taCompound" placeholder="مثال: فيليدج"></div>
+        <div class="field"><label>نوع الوحدة</label><select id="taUnitType" onchange="taUnitUI()"><option value="شقة">شقة سكنية</option><option value="فيلا">فيلا</option></select></div>
+        <div class="field" id="taBldBox"><label>العمارة</label><input id="taBuilding" placeholder="رقم العمارة"></div>
+        <div class="field" id="taParcelBox"><label>البارسل <span class="hint">(اختياري)</span></label><input id="taParcel" placeholder="رقم/اسم البارسل"></div>
+        <div class="field"><label id="taUnitLbl">الشقة</label><input id="taUnit" placeholder="رقم الشقة"></div>
+      </div>
+    </section>
+
+    <!-- 4. القيمة والمدة والتأمين -->
+    <section class="card">
+      <h2><span class="n">4</span> القيمة والمدة والتأمين</h2>
+      <input type="hidden" id="taCur" value="egp">
+
+      <!-- المبلغ ونوع الإيجار -->
+      <div class="grid three">
+        <div class="field rmM"><label>قيمة الإيجار <span class="hint">(شهري - جنيه)</span></label><input type="number" id="taRent" placeholder="القيمة بالأرقام"></div>
+        <div class="field rmD" style="display:none"><label>قيمة الإيجار <span class="hint">(يومي - جنيه)</span></label><input type="number" id="taDayRate" placeholder="سعر اليوم"></div>
+        <div class="field"><label>نوع الإيجار</label><select id="taRentType" onchange="switchRentMode()"><option value="month">شهري</option><option value="day">يومي (بالليلة)</option></select></div>
+      </div>
+
+      <!-- المدة والتواريخ -->
+      <div class="grid three" style="margin-top:10px">
+        <div class="field rmM"><label>المدة (شهور)</label><input type="number" id="taMonths" min="1" value="12"></div>
+        <div class="field rmD" style="display:none"><label>المدة (أيام)</label><input type="number" id="taNights" min="1" placeholder="عدد الأيام"></div>
+        <div class="field"><label>تاريخ البداية / الدخول</label><input type="date" id="taStart"></div>
+        <div class="field"><label>تاريخ النهاية / الخروج <span class="hint">(تلقائي)</span></label><input type="date" id="taEnd"></div>
+      </div>
+      <div class="grid rmD" style="display:none; margin-top:10px">
+        <div class="field"><label>إجمالي مدة الإقامة <span class="hint">(تلقائي)</span></label><input id="taTotal" readonly placeholder="يُحسب تلقائيًا"></div>
+      </div>
+
+      <!-- التأمين -->
+      <div class="grid" style="margin-top:10px">
+        <div class="field"><label>قيمة التأمين <span class="hint">(فاضي = بدون تأمين)</span></label>
+          <select id="taDepType" onchange="depAuto('taRent','taDepType','taDep')" style="margin-bottom:6px">
+            <option value="manual">قيمة يدوية</option>
+            <option value="1">شهر إيجار</option>
+            <option value="2">شهرين إيجار</option>
+          </select>
+          <input type="number" id="taDep" placeholder="اتركه فاضي لو بدون تأمين">
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. الخدمات -->
+    <section class="card">
+      <h2><span class="n">5</span> الخدمات على المستأجر <span class="hint" style="font-weight:400;color:var(--muted)">(أشّر اللي على المستأجر)</span></h2>
+      <div class="grid three">
+        <label class="chk"><input type="checkbox" id="taGate"> تصريح البوابة</label>
+        <label class="chk"><input type="checkbox" id="taGarage"> الجراج</label>
+        <label class="chk"><input type="checkbox" id="taWater"> المياه وفروق الصيانة</label>
+        <label class="chk"><input type="checkbox" id="taGarden"> صيانة الحديقة (إن وجدت)</label>
+        <label class="chk"><input type="checkbox" id="taGas"> الغاز</label>
+        <label class="chk"><input type="checkbox" id="taNet"> الإنترنت</label>
+        <label class="chk"><input type="checkbox" id="taElec"> الكهرباء</label>
+      </div>
+      <div class="grid three" style="margin-top:10px">
+        <div class="field"><label>الرقم الأرضي (للإنترنت)</label><input id="taLandline" placeholder="الرقم الأرضي"></div>
+        <div class="field"><label>قراءة عداد الكهرباء (ك.و.ي)</label><input id="taKwh" placeholder="القراءة"></div>
+        <div class="field"><label>قيمة العداد (جنيه)</label><input id="taEgp" placeholder="بالجنيه"></div>
+      </div>
+    </section>
+  </div><!-- /tenantArForm -->
+
+  <div class="actions">
+    <button class="btn-primary" onclick="generate()">📄 إنشاء العقد</button>
+    <button class="btn-save" onclick="saveDeal()">★ حفظ العقد</button>
+    <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
+    <button class="btn-accent" onclick="downloadWord()">📄 تحميل Word</button>
+    <button class="btn-ghost" onclick="resetForm()">↺ إفراغ الحقول</button>
+  </div>
+  <div class="note" id="storageNote"></div>
+
+  <div id="output">
+    <div class="contract"><div class="placeholder-msg">العقد هيظهر هنا بعد ما تضغط «إنشاء العقد».</div></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const WD = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function fmtDate(v){ if(!v) return '..../..../....'; const [y,m,d]=v.split('-'); return `${+d}&nbsp;/&nbsp;${+m}&nbsp;/&nbsp;${y}`; }
+function ymd(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function weekdayOf(v){ if(!v) return ''; const dt=new Date(v+'T00:00:00'); return WD[dt.getDay()]; }
+
+/* ---------- Arabic number to words (tafqit) ---------- */
+const ONES=['','واحد','اثنان','ثلاثة','اربعة','خمسة','ستة','سبعة','ثمانية','تسعة','عشرة','احد عشر','اثنا عشر','ثلاثة عشر','اربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+const TENS=['','','عشرون','ثلاثون','اربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+const HUND=['','مائة','مئتان','ثلاثمائة','اربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+function under1000(n){
+  let parts=[];
+  const h=Math.floor(n/100), r=n%100;
+  if(h) parts.push(HUND[h]);
+  if(r){
+    if(r<20) parts.push(ONES[r]);
+    else{ const t=Math.floor(r/10), o=r%10; if(o) parts.push(ONES[o]+' و'+TENS[t]); else parts.push(TENS[t]); }
+  }
+  return parts.join(' و');
+}
+function scaleWord(n,one,two,few,many){ if(n===1)return one; if(n===2)return two; if(n>=3&&n<=10)return under1000(n)+' '+few; return under1000(n)+' '+many; }
+function tafqit(num){
+  num=Math.floor(Math.abs(+num||0));
+  if(num===0) return 'صفر';
+  let out=[];
+  const mil=Math.floor(num/1000000); const th=Math.floor((num%1000000)/1000); const rest=num%1000;
+  if(mil) out.push(scaleWord(mil,'مليون','مليونان','ملايين','مليون'));
+  if(th) out.push(scaleWord(th,'ألف','ألفان','آلاف','ألف'));
+  if(rest) out.push(under1000(rest));
+  return out.join(' و');
+}
+function ordinal(n){
+  const O=['','الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر'];
+  const U=['','الحادي','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع'];
+  if(n<=10) return O[n];
+  if(n<20) return U[n-10]+' عشر';
+  if(n===20) return 'العشرون';
+  if(n<30) return U[n-20]+' والعشرون';
+  return 'رقم '+n;
+}
+
+/* ---------- Auto-fill reactions ---------- */
+function depAuto(rentId,typeId,depId){
+  const sel=$(typeId), depEl=$(depId); if(!sel||!depEl) return;
+  if(sel.value==='manual'){ depEl.readOnly=false; }
+  else { 
+    const r=+($(rentId)?$(rentId).value:0)||0; 
+    const v=r?r*(+sel.value):''; 
+    depEl.value=(v===''?'':String(v)); 
+    depEl.readOnly=true; 
+  }
+}
+if($('taRent')) $('taRent').addEventListener('input',()=>{ if($('taDepType')&&$('taDepType').value!=='manual') depAuto('taRent','taDepType','taDep'); });
+
+function _uiVilla(typeId,bldBoxId,parcelBoxId,unitLblId,unitInputId){
+  const villa=($(typeId)&&$(typeId).value)==='فيلا';
+  if($(bldBoxId)) $(bldBoxId).style.display=villa?'none':'';
+  if($(parcelBoxId)) $(parcelBoxId).style.display='';
+  if($(unitLblId)) $(unitLblId).textContent=villa?'رقم الفيلا':'رقم الشقة';
+  if($(unitInputId)) $(unitInputId).placeholder=villa?'رقم الفيلا':'رقم الشقة';
+}
+function taUnitUI(){ _uiVilla('taUnitType','taBldBox','taParcelBox','taUnitLbl','taUnit'); }
+
+function locAr(villa,comp,bld,parcel,un,label,sep){
+  sep=sep||' ';
+  const p=[`كمبوند (${comp})`];
+  if(parcel&&parcel!=='..............') p.push(`بارسل (${parcel})`);
+  if(!villa) p.push(`عمارة (${bld})`);
+  p.push(`${label} (${un})`);
+  return p.join(sep);
+}
+
+function switchRentMode(){
+  if(!$('taRentType')) return;
+  const dy=$('taRentType').value==='day';
+  document.querySelectorAll('.rmM').forEach(el=>el.style.display=dy?'none':'');
+  document.querySelectorAll('.rmD').forEach(el=>el.style.display=dy?'':'none');
+  ['taGate','taGarage','taWater','taGarden','taGas','taNet','taElec'].forEach(id=>{ if($(id)) $(id).checked=!dy; });
+  taRecalc();
+}
+function taDaysBetween(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function dayWord(n){ n=+n||0; if(n===1)return 'يوم واحد'; if(n===2)return 'يومان'; if(n>=3&&n<=10)return n+' أيام'; return n+' يومًا'; }
+function monthWord(n){ n=+n||0; if(n===12)return 'سنة واحدة'; if(n===1)return 'شهر واحد'; if(n===2)return 'شهران'; if(n>=3&&n<=10)return n+' أشهر'; return n+' شهرًا'; }
+
+function taRecalc(){
+  if(!$('taRentType')) return;
+  const s=$('taStart').value, type=$('taRentType').value;
+  if(type==='day'){
+    const n=+$('taNights').value||0;
+    if(s&&n){ const dt=new Date(s+'T00:00:00'); dt.setDate(dt.getDate()+n); $('taEnd').value=ymd(dt); }
+    const rate=+$('taDayRate').value||0, total=n*rate;
+    if($('taTotal')) $('taTotal').value = total? total.toLocaleString('en-US')+' جنيهًا ('+dayWord(n)+')' : '';
+  } else {
+    const m=+($('taMonths')?$('taMonths').value:0)||0;
+    if(s&&m){ const dt=new Date(s+'T00:00:00'); dt.setMonth(dt.getMonth()+m); dt.setDate(dt.getDate()-1); $('taEnd').value=ymd(dt); }
+  }
+}
+
+if($('taDate')) $('taDate').addEventListener('change',e=>{ $('taWeekday').value=weekdayOf(e.target.value)||$('taWeekday').value; });
+if($('taStart')) $('taStart').addEventListener('change',taRecalc);
+if($('taMonths')) $('taMonths').addEventListener('input',taRecalc);
+if($('taNights')) $('taNights').addEventListener('input',taRecalc);
+if($('taDayRate')) $('taDayRate').addEventListener('input',taRecalc);
+if($('taEnd')) $('taEnd').addEventListener('change',()=>{ if($('taRentType')&&$('taRentType').value==='day'){ const s=$('taStart').value,en=$('taEnd').value; if(s&&en){ const n=taDaysBetween(s,en); if(n>0)$('taNights').value=n; } } taRecalc(); });
+switchRentMode();
+
+/* ---------- Collect & Apply Data ---------- */
+function collectTenantAr(){
+  const ids=['taDate','taWeekday','taName','taNat','taId','taPhone','taResidence','taEmail','taCompound','taUnitType','taBuilding','taParcel','taUnit','taRentType','taMonths','taStart','taEnd','taNights','taDayRate','taRent','taCur','taDep','taDepType','taLandline','taKwh','taEgp'];
+  const cks=['taGate','taGarage','taWater','taGarden','taGas','taNet','taElec'];
+  const d={}; ids.forEach(k=>d[k]=$(k)?$(k).value:''); cks.forEach(k=>d[k]=$(k)?$(k).checked:false); return d;
+}
+function applyTenantAr(d){ 
+  for(const k in d){ const el=$(k); if(!el) continue; if(el.type==='checkbox') el.checked=!!d[k]; else el.value=d[k]??''; } 
+  switchRentMode(); 
+  if($('taDepType')) depAuto('taRent','taDepType','taDep'); 
+  taUnitUI(); 
+}
+
+/* ---------- Generate Contract ---------- */
+function generate(){
+  const cw = 'جنيهًا مصريًا';
+  const g=id=>($(id)?$(id).value:'');
+  const ck=id=>($(id)?$(id).checked:false);
+  const dot='..............';
+  const Bv=v=>v&&String(v).trim()?v:dot;
+  const wd=g('taWeekday'), dstr=g('taDate')?fmtDate(g('taDate')):dot;
+  const start=g('taStart')?fmtDate(g('taStart')):dot, end=g('taEnd')?fmtDate(g('taEnd')):dot;
+  const comp=Bv(g('taCompound')), bldg=Bv(g('taBuilding')), unit=Bv(g('taUnit'));
+  const taVilla=(g('taUnitType')||'شقة')==='فيلا';
+  const taLoc=locAr(taVilla,comp,bldg,Bv(g('taParcel')),unit,taVilla?'فيلا':'شقة');
+  const name=Bv(g('taName')), nat=Bv(g('taNat')), pid=Bv(g('taId')), phone=Bv(g('taPhone')), res=Bv(g('taResidence')), email=Bv(g('taEmail'));
+  const isDay=g('taRentType')==='day';
+  
+  // duration / value
+  let daysN=+g('taNights')||0;
+  if(isDay && !daysN && g('taStart') && g('taEnd')) daysN=Math.round((new Date(g('taEnd')+'T00:00:00')-new Date(g('taStart')+'T00:00:00'))/86400000);
+  const dayRate=+g('taDayRate')||0, total=daysN*dayRate, monthRate=+g('taRent')||0, months=+g('taMonths')||0;
+  const durTxt = isDay ? (daysN?dayWord(daysN):dot) : (months?monthWord(months):dot);
+  let amtPart;
+  if(isDay){ const tot=total?total.toLocaleString('en-US'):dot, totW=total?tafqit(total):dot; amtPart=`مبلغ إجمالي قدره ${tot} (فقط ${totW} ${cw} لا غير) عن كامل مدة الإقامة`; }
+  else { const mr=monthRate?monthRate.toLocaleString('en-US'):dot, mrW=monthRate?tafqit(monthRate):dot; amtPart=`أجرة (شهرية) مبلغ قدره ${mr} (فقط ${mrW} ${cw} لا غير)`; }
+  
+  // deposit
+  const depN=g('taDep');
+  let depBody;
+  if(depN){ const dep=(+depN).toLocaleString('en-US'), depW=tafqit(depN); depBody=`دفع الطرف الثاني للطرف الأول بمجلس هذا العقد مبلغ ${dep} (فقط ${depW} ${cw} لا غير) كتأمين، على أن يُرد في نهاية مدة هذا العقد إذا ما قام الطرف الثاني بالوفاء بالتزاماته كاملةً مع عدم الإخلال بأي بند من بنود هذا العقد، وإلا كان للطرف الأول الحق في حجز مبلغ التأمين لاقتضاء مقابل التلفيات أو الأضرار أو الالتزامات غير المسددة من الطرف الثاني.`; }
+  else { depBody=`اتفق الطرفان على أن يكون هذا العقد بدون تأمين.`; }
+  
+  // services
+  const svc=[];
+  if(ck('taGate')) svc.push('تصريح البوابة');
+  if(ck('taGarage')) svc.push('الجراج');
+  if(ck('taWater')) svc.push('المياه وفروق الصيانة');
+  if(ck('taGarden')) svc.push('صيانة الحديقة (إن وجدت)');
+  if(ck('taGas')) svc.push('الغاز');
+  if(ck('taNet')) svc.push(`الإنترنت${g('taLandline')?` (الرقم الأرضي: ${g('taLandline')})`:''}`);
+  if(ck('taElec')){ const mr=(g('taKwh')||g('taEgp'))?` (قراءة العداد عند التعاقد: ${Bv(g('taKwh'))} ك.و.ي — ${Bv(g('taEgp'))} جنيهًا)`:''; svc.push(`الكهرباء${mr}`); }
+  
+  const c=[];
+  c.push(`<div class="doc-head"><h3>عقد إيجار وحدة سكنية مفروشة</h3><div class="sub">طبقًا لأحكام القانون المدني — مدينة القاهرة الجديدة</div></div>`);
+  c.push(`<p>أنه في يوم : ${Bv(wd)}   الموافق : ${dstr}   تم تحرير هذا العقد بين كل من :</p>`);
+  c.push(`<p class="party">السادة / <b>شركة أصول ريزيدنس</b> — الكائن مقرها كمبوند فيليدج – التجمع الخامس – القاهرة الجديدة – القاهرة.</p>`);
+  c.push(`<table class="ptbl"><tr><td class="ptxt"></td><td class="ptag2">(طرف أول مؤجر)</td></tr></table>`);
+  c.push(`<p class="party">السيد / <b>${name}</b>   الجنسية : ${nat}</p>`);
+  c.push(`<p class="party">رقم قومي / جواز سفر : ${pid}   رقم الهاتف : ${phone}</p>`);
+  c.push(`<table class="ptbl"><tr><td class="ptxt">رقم الإقامة في مصر : ${res}   البريد الإلكتروني : ${email}</td><td class="ptag2">(طرف ثاني مستأجر)</td></tr></table>`);
+  c.push(`<div class="clause-h">تمهيد</div><p>تؤجر شركة أصول ريزيدنس للطرف الثاني ${taVilla?'فيلا سكنية مفروشة':'وحدة سكنية مفروشة'} بـ ${taLoc}، ومرفق بهذا العقد ملحق بقائمة المنقولات الخاصة بالوحدة السكنية موضوع العقد.</p>`);
+
+  const bodies=[];
+  bodies.push(`التمهيد جزء لا يتجزأ من هذا العقد. ومدة هذا العقد ${durTxt} تبدأ في ${start} وتنتهي في ${end} في تمام الساعة (12 ظهرًا)، ويترتب على انقضاء هذه المدة انتهاء العقد بحكم القانون دون حاجة لتنبيه أو إنذار بالإخلاء.<br>ويتعهد ويلتزم الطرف الثاني (المستأجر) في حالة رغبته ترك الوحدة السكنية المفروشة لظروف خاصة به أيًا كانت — ظروفًا قاهرة أو عادية — قبل انتهاء مدة هذا العقد بالشروط التالية:<br>1- تنازله عن استرداد مبلغ القيمة الإيجارية وأي مبالغ مالية مدفوعة مقدمًا عن مدة إقامته الحالية والمستقبلية إن وُجد.<br>2- تنازله عن حقه في استرداد قيمة مبلغ التأمين المذكور في البند الثالث واعتباره تعويضًا عن الإنهاء المبكر من جانب المستأجر.<br>وتسليم الوحدة السكنية المفروشة بالحالة التي كانت عليها وقت إبرام هذا العقد في الفقرتين السابقتين دون الحاجة إلى إعذار أو حكم قضائي.`);
+  bodies.push(`تم هذا الإيجار لقاء ${amtPart} يلتزم الطرف الثاني بالوفاء بها بموطن الطرف الأول المبين بهذا العقد بإيصال استلام أو من خلال تحويل بنكي، وفي حالة الإخلال بهذا الالتزام يعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر، كما يقر ويسمح الطرف الثاني للطرف الأول بفتح ودخول الوحدة السكنية المفروشة موضوع هذا العقد دون أي إذن أو تنبيه حالة تأخير الطرف الثاني عن سداد القيمة الإيجارية.`);
+  bodies.push(depBody);
+  if(svc.length){ bodies.push(`يلتزم الطرف الثاني بقيمة استهلاك كافة الخدمات الموضحة أدناه اعتبارًا من تاريخ هذا العقد، كما يلتزم بقيمة أي غرامات أو مخالفات تنتج عن سوء استخدام الخدمات بالإضافة إلى تعويض الشركة عن الأضرار. <b>الخدمات على الطرف الثاني:</b> ${svc.join('، ')}.`); }
+  else { bodies.push(`يلتزم الطرف الثاني بقيمة أي غرامات أو مخالفات تنتج عن سوء استخدام الخدمات بالإضافة إلى تعويض الشركة عن الأضرار.`); }
+  bodies.push(`تسلّم الطرف الثاني العين المؤجرة بما فيها من منقولات بتاريخ هذا العقد على سبيل الأمانة لاستعمالها في الغرض الذي خُصصت له، ويلتزم بردها في نهاية المدة المتفق عليها بحالتها المبينة بالبند التمهيدي، وإلا كان الطرف الثاني مسئولًا مدنيًا وجنائيًا حالة فقدان أو إتلاف المنقولات، وفي هذه الحالة يكون للطرف الأول حجز التأمين كتعويض بالإضافة إلى رجوعه على الطرف الثاني بتكملة التعويض لجبر ما ناله من ضرر ما لم يتم التصالح بينهما على تقدير ذلك.`);
+  bodies.push(`يقر الطرف الثاني بأنه عاين العين المؤجرة وما بها من منقولات معاينةً نافيةً للجهالة فوجدها بحالة جيدة وصالحة للاستعمال ولا يحتاج أي شيء منها لأي صيانة، ولا يجوز للطرف الثاني إدخال أي منقولات بالعين المؤجرة أو إخراج أي منقولات منها وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون الحاجة إلى تنبيه أو إنذار أو أي إجراء آخر مع إلزامه برد المنقولات الملحقة بهذا العقد.`);
+  bodies.push(`الغرض من الإيجار هو سكنى الطرف الثاني وأسرته فقط، ولا يجوز تغيير هذا الغرض لأي سبب من الأسباب أو إجراء أي تعديل بالعين وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر.`);
+  bodies.push(`يلتزم الطرف الثاني بكافة التعليمات التي أقرها أو سوف يقررها اتحاد الشاغلين فيما يخص الوحدة السكنية موضوع هذا العقد بشكل خاص، وبالتعليمات الخاصة بالمنطقة السكنية (الكمبوند) بشكل عام، وفي حالة الإخلال بأي من هذه التعليمات يحق للطرف الأول فسخ هذا العقد دون الحاجة إلى إنذار أو تنبيه بالفسخ، كما يتحمل الطرف الثاني مسؤولية الإخلال بهذه التعليمات بما في ذلك الغرامات المقررة من اتحاد الشاغلين، ولا يحق له المطالبة بمبلغ التأمين المدفوع وقت إبرام هذا العقد كجزء من التعويض عما لحق بالشركة (الطرف الأول) من أضرار مادية ومعنوية، بالإضافة إلى مطالبة الطرف الأول باستكمال التعويض من الطرف الثاني.`);
+  bodies.push(`في حالة إخلال الطرف الثاني بتنفيذ التزامه بإخلاء العين في المدة المتفق عليها يلتزم بدفع مبلغ 10,000 جنيه مصري (فقط عشرة آلاف جنيه مصري لا غير) عن كل يوم تأخير إلى أن يتم تنفيذه رضاءً أو قضاءً.`);
+  bodies.push(`لا يجوز للطرف الثاني التنازل عن الإيجار أو التأجير من الباطن وإلا اعتبر العقد مفسوخًا من تلقاء نفسه دون حاجة إلى تنبيه أو إنذار أو أي إجراء آخر، ويكون للطرف الأول الرجوع عليه بالأجرة المستحقة عن باقي مدة العقد.`);
+  bodies.push(`تختص محكمة القاهرة الجديدة بنظر ما قد ينشب عن هذا العقد من منازعات، ويعتبر عنوان كل من طرفيه المبين به موطنًا مختارًا في هذا الصدد، ويلتزم الطرف الأول بإخطار الجهات المعنية عن هذا الإيجار.`);
+  bodies.push(`تم كتابة بيانات الطرف الثاني واستكمال كافة بيانات هذا العقد — عدا التوقيعات — أمام الطرف الثاني وبرضائه بخط يد مندوب تشغيل وتسكين شركة أصول ريزيدنس والمفوض من الشركة بالتوقيع على العقد نيابةً عن الشركة ومختوم باسم المفوض.`);
+  const nClauses=bodies.length+1;
+  bodies.push(`حرر هذا العقد من ${tafqit(nClauses)} بندًا في ورقة واحدة وجهان، لكل طرف نسخة للعمل بموجبها.`);
+  bodies.forEach((b,i)=>{ c.push(`<div class="clause-h">البند ${ordinal(i+1)}</div><p>${b}</p>`); });
+
+  c.push(`<table class="sig"><tr>
+      <td class="col"><h4>الطرف الأول (المؤجر)</h4><div>الاسم : شركة أصول ريزيدنس</div><div>التوقيع : ........................</div><div>ختم مفوّض الشركة</div></td>
+      <td class="col"><h4>الطرف الثاني (المستأجر)</h4><div>الاسم : ${name}</div><div>التوقيع : ........................</div><div>رقم قومي/جواز : ${pid}</div></td>
+    </tr></table>`);
+  c.push(`<p style="font-size:.92em;margin-top:8px">تم الاطلاع على أصل (جواز سفر / رقم قومي) وكافة المستندات الأخرى، ومرفق صور هذه المستندات.</p>`);
+  c.push(`<p style="font-size:.92em;margin-top:4px">ختم مفوض الشركة / ........................</p>`);
+  c.push(`<div class="doc-foot">عقد إيجار وحدة سكنية مفروشة — أصول ريزيدنس</div>`);
+  const html=`<div class="contract" id="contractBody">${c.join('')}</div>`;
+  $('output').innerHTML=`<div class="out-actions actions">
+      <button class="btn-accent" onclick="printContract()">🖨️ طباعة / تصدير PDF</button>
+      <button class="btn-accent" onclick="downloadWord()">📄 تحميل Word</button>
+    </div>${html}`;
+  window.scrollTo({top:document.getElementById('output').offsetTop-10,behavior:'smooth'});
+}
+
+/* ---------- Output actions ---------- */
+function printContract(){ window.print(); }
+
+function buildContractDocx(D, body){
+  const {Document,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,VerticalAlign,PageBorderDisplay,PageBorderOffsetFrom}=D;
+  const BRAND="155244", AR_FONT="Arial";
+  const NOB={top:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},bottom:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},left:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},right:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}};
+  const LINE={line:288,lineRule:"auto"};
+
+  function runsOf(el, base){
+    base=base||{}; const out=[]; let brk=0;
+    function push(t,extra){
+      if(!t) return;
+      const o=Object.assign({text:t,rightToLeft:true,font:AR_FONT},base.run||{},extra||{});
+      if(brk>0){o.break=brk;brk=0;}
+      out.push(new TextRun(o));
+    }
+    (el.childNodes||[]).forEach(n=>{
+      if(n.nodeType===3){ push(n.textContent); }
+      else if(n.nodeType===1){
+        const tg=n.tagName;
+        if(tg==='BR'){ brk++; return; }
+        if(tg==='B'||tg==='STRONG'){ push(n.textContent,{bold:true}); }
+        else push(n.textContent);
+      }
+    });
+    if(!out.length) out.push(new TextRun({text:'',rightToLeft:true,font:AR_FONT}));
+    return out;
+  }
+  function paras(el, opts){
+    opts=opts||{};
+    const segs=[[]]; 
+    (el.childNodes||[]).forEach(n=>{
+      if(n.nodeType===3){ if(n.textContent) segs[segs.length-1].push({t:n.textContent}); }
+      else if(n.nodeType===1){
+        if(n.tagName==='BR'){ segs.push([]); return; }
+        const bold=(n.tagName==='B'||n.tagName==='STRONG');
+        if(n.textContent) segs[segs.length-1].push({t:n.textContent,bold});
+      }
+    });
+    const out=[];
+    segs.forEach(seg=>{
+      const txt=seg.map(s=>s.t).join('');
+      if(!txt.trim()) return;
+      const runs=seg.map(s=>new TextRun(Object.assign({text:s.t,rightToLeft:true,font:AR_FONT}, s.bold?{bold:true}:{})));
+      out.push(new Paragraph(Object.assign({
+        children:runs,
+        bidirectional:true,
+        alignment:opts.align||AlignmentType.JUSTIFIED,
+        spacing:Object.assign({},LINE,{after:opts.after!=null?opts.after:40},opts.before!=null?{before:opts.before}:{}),
+      }, opts.border?{border:opts.border}:{})));
+    });
+    if(!out.length) out.push(new Paragraph({children:[new TextRun({text:''})],bidirectional:true}));
+    return out;
+  }
+  function textPara(t, o){
+    o=o||{};
+    return new Paragraph(Object.assign({
+      children:[new TextRun(Object.assign({text:t,rightToLeft:true,font:AR_FONT},o.run||{}))],
+      bidirectional:true, alignment:o.align||AlignmentType.START,
+      spacing:Object.assign({},LINE,{after:o.after!=null?o.after:40},o.before!=null?{before:o.before}:{}),
+    }, o.border?{border:o.border}:{}));
+  }
+
+  const kids=[];
+  Array.prototype.forEach.call(body.children, el=>{
+    const cls=el.className||'', tag=el.tagName;
+    if(tag==='DIV' && cls.indexOf('doc-head')>-1){
+      const ch=Array.prototype.slice.call(el.children);
+      ch.forEach((c,i)=>{
+        const last=i===ch.length-1;
+        const border=last?{bottom:{style:BorderStyle.DOUBLE,size:12,color:BRAND,space:4}}:null;
+        if(c.tagName==='H3') kids.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:34,color:BRAND},after:40,border}));
+        else kids.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:24},after:last?80:20,border}));
+      });
+    }
+    else if(tag==='DIV' && cls.indexOf('clause-h')>-1){
+      kids.push(textPara(el.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:25,color:BRAND,underline:{}},before:110,after:30}));
+    }
+    else if(tag==='DIV' && cls.indexOf('doc-foot')>-1){
+      kids.push(textPara(el.textContent,{align:AlignmentType.CENTER,run:{size:16,color:"999999"},before:120,border:{top:{style:BorderStyle.SINGLE,size:4,color:"CFE0D9",space:3}}}));
+    }
+    else if(tag==='P'){
+      paras(el,{align:cls.indexOf('party')>-1?AlignmentType.START:AlignmentType.JUSTIFIED,after:cls.indexOf('party')>-1?30:40}).forEach(p=>kids.push(p));
+    }
+    else if(tag==='TABLE' && cls.indexOf('ptbl')>-1){
+      const tr=el.rows[0];
+      const cells=[];
+      Array.prototype.forEach.call(tr.cells, td=>{
+        const isTag=(td.className||'').indexOf('ptag2')>-1;
+        cells.push(new TableCell({
+          children:[new Paragraph({children:runsOf(td,isTag?{run:{bold:true}}:{}),bidirectional:true,alignment:isTag?AlignmentType.END:AlignmentType.START,spacing:Object.assign({},LINE,{after:30})})],
+          borders:NOB, width:{size:isTag?24:76,type:WidthType.PERCENTAGE}, verticalAlign:VerticalAlign.BOTTOM,
+        }));
+      });
+      kids.push(new Table({rows:[new TableRow({children:cells})],width:{size:100,type:WidthType.PERCENTAGE},visuallyRightToLeft:true,borders:NOB}));
+    }
+    else if(tag==='TABLE' && cls.indexOf('sig')>-1){
+      const tr=el.rows[0];
+      const cells=[];
+      Array.prototype.forEach.call(tr.cells, td=>{
+        const paras=[];
+        Array.prototype.forEach.call(td.children, c=>{
+          if(c.tagName==='H4') paras.push(textPara(c.textContent,{align:AlignmentType.CENTER,run:{bold:true,size:26,underline:{}},after:80}));
+          else paras.push(textPara(c.textContent,{align:AlignmentType.START,after:60}));
+        });
+        cells.push(new TableCell({children:paras,borders:NOB,width:{size:50,type:WidthType.PERCENTAGE}}));
+      });
+      kids.push(new Paragraph({children:[],spacing:{before:160,after:0}}));
+      kids.push(new Table({rows:[new TableRow({children:cells})],width:{size:100,type:WidthType.PERCENTAGE},visuallyRightToLeft:true,borders:NOB}));
+    }
+  });
+
+  const pageBorders = {borders:{
+    pageBorders:{display:PageBorderDisplay.ALL_PAGES,offsetFrom:PageBorderOffsetFrom.PAGE},
+    pageBorderTop:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
+    pageBorderBottom:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
+    pageBorderLeft:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
+    pageBorderRight:{style:BorderStyle.DOUBLE,size:24,color:BRAND,space:20},
+  }};
+
+  return new Document({
+    styles:{default:{document:{run:{font:AR_FONT,size:24}}}},
+    sections:[{
+      properties:{page:Object.assign({
+        size:{width:11906,height:16838},
+        margin:{top:680,bottom:680,left:740,right:740},
+      },pageBorders)},
+      children:kids,
+    }],
+  });
+}
+
+function loadDocxLib(){
+  if(window.docx&&window.docx.Document) return Promise.resolve();
+  if(window.__docxLoading) return window.__docxLoading;
+  const urls=['https://unpkg.com/docx@8.5.0/build/index.umd.js','https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js'];
+  window.__docxLoading=new Promise((resolve,reject)=>{
+    let i=0;
+    const tryNext=()=>{
+      if(i>=urls.length){window.__docxLoading=null;reject(new Error('offline'));return;}
+      const s=document.createElement('script');
+      s.src=urls[i++];
+      s.onload=()=>{ if(window.docx&&window.docx.Document) resolve(); else tryNext(); };
+      s.onerror=()=>{ s.remove(); tryNext(); };
+      document.head.appendChild(s);
+    };
+    tryNext();
+  });
+  return window.__docxLoading;
+}
+async function downloadWord(){
+  const body=document.getElementById('contractBody');
+  if(!body){flash('اعمل العقد الأول');return;}
+  let D;
+  try{ await loadDocxLib(); D=window.docx; }
+  catch(e){ flash('تنزيل Word محتاج اتصال إنترنت (أول مرة فقط) — اتأكد من الاتصال وحاول تاني'); return; }
+  try{
+    const doc=buildContractDocx(D,body);
+    const blob=await D.Packer.toBlob(doc);
+    const clean=s=>(s||'').replace(/[\\/:*?"<>|]/g,'').trim();
+    const parts=[clean($('taCompound').value),clean($('taBuilding').value),clean($('taUnit').value)].filter(Boolean);
+    const detail=parts.join(' ');
+    const name=detail ? `عقد مستأجر - ${detail}.docx` : `عقد مستأجر.docx`;
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+    flash('تم إنشاء ملف Word ✓');
+  }catch(err){ console.error(err); flash('حصل خطأ أثناء إنشاء ملف Word'); }
+}
+
+function flash(msg){
+  const n=$('storageNote'); n.style.display='block'; n.style.color='#155244'; n.style.background='#e7f6f0'; n.style.borderColor='#a7e3cf'; n.textContent=msg;
+  clearTimeout(window._ft); window._ft=setTimeout(()=>{n.style.display='none';},2600);
+}
+
+/* ---------- Storage ---------- */
+let MEM=[];
+const Store={
+  async list(){
+    try{ const out=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i); if(k.indexOf('deal_tar:')===0)out.push(JSON.parse(localStorage.getItem(k)));} return out; }catch(e){ return MEM.slice(); }
+  },
+  async save(rec){
+    const key='deal_tar:'+rec.id;
+    try{ localStorage.setItem(key,JSON.stringify(rec)); return; }catch(e){ MEM=MEM.filter(x=>x.id!==rec.id); MEM.push(rec); }
+  },
+  async remove(id){
+    const key='deal_tar:'+id;
+    try{ localStorage.removeItem(key); }catch(e){} MEM=MEM.filter(x=>x.id!==id);
+  }
+};
+
+async function saveDeal(){
+  const d=collectTenantAr();
+  if(!d.taName){ flash('اكتب اسم المستأجر قبل الحفظ'); return; }
+  const rec={ id:String(Date.now()), label:d.taName, sub:`${d.taCompound||''} · ${d.taRent?(+d.taRent).toLocaleString('en-US')+' ج':''}`, savedAt:new Date().toLocaleString('ar-EG'), data:d };
+  await Store.save(rec); flash('تم حفظ الصفقة ✓'); renderSaved();
+}
+
+function toggleSaved(){
+  const box=$('savedList'), ar=$('savedArrow');
+  const open=box.style.display!=='none';
+  box.style.display=open?'none':'';
+  if(ar) ar.textContent=open?'▼ اعرض':'▲ اقفل';
+}
+
+async function renderSaved(){
+  const list=await Store.list();
+  const box=$('savedList');
+  if($('savedCount')) $('savedCount').textContent=list.length;
+  if(!list.length){ box.innerHTML='<div class="empty">لا توجد صفقات محفوظة بعد.</div>'; return; }
+  list.sort((a,b)=>+b.id-+a.id);
+  box.innerHTML=list.map(r=>`<div class="saved-item">
+     <div class="meta"><b>${r.label||'بدون اسم'}</b><small>${r.sub||''} — ${r.savedAt||''}</small></div>
+     <div class="ops">
+       <button class="btn-ghost" onclick="loadDeal('${r.id}')">تحميل</button>
+       <button class="mini-danger" onclick="delDeal('${r.id}')">حذف</button>
+     </div></div>`).join('');
+}
+
+async function loadDeal(id){
+  const list=await Store.list(); const r=list.find(x=>x.id===id); if(!r)return;
+  applyTenantAr(r.data);
+  flash('تم تحميل الصفقة — اضغط «إنشاء العقد»'); generate();
+}
+async function delDeal(id){ await Store.remove(id); renderSaved(); }
+
+function resetForm(){
+  const clear=ids=>ids.forEach(k=>{ const el=$(k); if(el){ if(el.type==='checkbox') el.checked=false; else el.value=''; } });
+  clear(['taDate','taWeekday','taName','taNat','taId','taPhone','taResidence','taEmail','taCompound','taBuilding','taParcel','taUnit','taStart','taEnd','taMonths','taNights','taDayRate','taTotal','taRent','taDep','taLandline','taKwh','taEgp','taGate','taGarage','taWater','taGarden','taGas','taNet','taElec']);
+  if($('taUnitType'))$('taUnitType').value='شقة'; taUnitUI();
+  if($('taDepType'))$('taDepType').value='manual'; 
+  if($('taRentType'))$('taRentType').value='month'; switchRentMode();
+  $('output').innerHTML='<div class="contract"><div class="placeholder-msg">العقد هيظهر هنا بعد ما تضغط «إنشاء العقد».</div></div>';
+  flash('تم إفراغ الحقول');
+}
+
+/* init */
+(async()=>{ 
+  try{ await renderSaved(); }catch(e){}
+  $('storageNote').style.display='none';
+})();
+</script>
+</body>
+</html>
